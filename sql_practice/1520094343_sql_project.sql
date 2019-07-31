@@ -89,13 +89,30 @@ done
 who signed up. Do not use the LIMIT clause for your solution. */
 
 
+SELECT surname, firstname, memid
+FROM  `Members` 
+WHERE memid = (SELECT MAX(memid) FROM `Members`)
 
+done
 
 /* Q7: How can you produce a list of all members who have used a tennis court?
 Include in your output the name of the court, and the name of the member
 formatted as a single column. Ensure no duplicate data, and order by
 the member name. */
 
+tenniscourts = 0,1 in ID
+
+SELECT DISTINCT members.surname AS member, fact.name AS facility
+FROM  `Members` members
+JOIN  `Bookings` bookings 
+    ON members.memid = bookings.memid
+JOIN  `Facilities` fact 
+    ON bookings.facid = fact.facid
+WHERE bookings.facid
+IN ( 0, 1 ) 
+ORDER BY member
+
+done
 
 /* Q8: How can you produce a list of bookings on the day of 2012-09-14 which
 will cost the member (or guest) more than $30? Remember that guests have
@@ -104,10 +121,68 @@ the guest user's ID is always 0. Include in your output the name of the
 facility, the name of the member formatted as a single column, and the cost.
 Order by descending cost, and do not use any subqueries. */
 
+SELECT DISTINCT members.surname AS member, fact.name AS facility,
+CASE
+WHEN members.memid = 0
+THEN bookings.slots * fact.guestcost
+ELSE bookings.slots * fact.membercost
+END AS cost
+FROM  `Members` members
+JOIN  `Bookings` bookings 
+    ON members.memid = bookings.memid
+JOIN  `Facilities` fact 
+    ON bookings.facid = fact.facid
+WHERE bookings.starttime >=  '2012-09-14'
+    AND bookings.starttime <  '2012-09-15'
+    AND ((members.memid = 0
+    AND bookings.slots * fact.guestcost >30)
+        OR (members.memid != 0
+    AND bookings.slots * fact.membercost >30))
+ORDER BY cost DESC
+
+done
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
+(basically copy/paste from before)
+
+SELECT member, facility, cost
+FROM (
+    SELECT members.surname AS member, fact.name AS facility,
+    CASE
+WHEN members.memid = 0
+THEN bookings.slots * fact.guestcost
+ELSE bookings.slots * fact.membercost
+END AS cost
+FROM  `Members` members
+JOIN  `Bookings` bookings 
+    ON members.memid = bookings.memid
+JOIN  `Facilities` fact 
+    ON bookings.facid = fact.facid
+WHERE bookings.starttime >=  '2012-09-14'
+    AND bookings.starttime <  '2012-09-15'
+) 
+AS bookings
+WHERE cost > 30
+ORDER BY cost DESC
+
+done
 
 /* Q10: Produce a list of facilities with a total revenue less than 1000.
 The output of facility name and total revenue, sorted by revenue. Remember
 that there's a different cost for guests and members! */
+
+SELECT name, totalrevenue
+FROM (
+    SELECT fact.name, 
+    SUM(CASE WHEN memid =0 
+        THEN slots * fact.guestcost ELSE slots * membercost END) AS totalrevenue
+    FROM  `Bookings` bookings
+    INNER JOIN  `Facilities` fact ON bookings.facid = fact.facid
+    GROUP BY fact.name
+)
+AS selected_facilities
+WHERE totalrevenue <=1000
+ORDER BY totalrevenue
+
+done
