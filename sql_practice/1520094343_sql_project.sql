@@ -6,6 +6,8 @@ https://sql.springboard.com/
 Username: student
 Password: learn_sql@springboard
 
+SISHIR YEETY API MINI PROJECT
+
 The data you need is in the "country_club" database. This database
 contains 3 tables:
     i) the "Bookings" table,
@@ -27,28 +29,66 @@ exploring the data, and getting acquainted with the 3 tables. */
 /* Q1: Some of the facilities charge a fee to members, but some do not.
 Please list the names of the facilities that do. */
 
+SELECT * 
+FROM  `Facilities`  
+WHERE membercost > 0
+
+done
 
 /* Q2: How many facilities do not charge a fee to members? */
 
+SELECT COUNT( * ) 
+FROM  `Facilities` 
+WHERE membercost =0
+
+done
 
 /* Q3: How can you produce a list of facilities that charge a fee to members,
 where the fee is less than 20% of the facility's monthly maintenance cost?
 Return the facid, facility name, member cost, and monthly maintenance of the
 facilities in question. */
 
+SELECT facid, name, membercost, monthlymaintenance
+FROM  `Facilities`  
+WHERE membercost > 0
+AND (membercost/monthlymaintenance) < 0.2
+
+done
 
 /* Q4: How can you retrieve the details of facilities with ID 1 and 5?
 Write the query without using the OR operator. */
 
+SELECT * 
+FROM  `Facilities` 
+WHERE facid =1
+OR facid =5
+
+or 
+
+SELECT * 
+FROM  `Facilities` 
+WHERE facid IN (1,5)
+
+done
 
 /* Q5: How can you produce a list of facilities, with each labelled as
 'cheap' or 'expensive', depending on if their monthly maintenance cost is
 more than $100? Return the name and monthly maintenance of the facilities
 in question. */
 
+SELECT name, monthlymaintenance, 
+CASE WHEN monthlymaintenance >100
+THEN  'EXPENSIVE!'
+ELSE  'CHEAP!'
+END AS  'CHEAP OR NOT?'
+FROM Facilities
+
+done
 
 /* Q6: You'd like to get the first and last name of the last member(s)
 who signed up. Do not use the LIMIT clause for your solution. */
+
+
 
 
 /* Q7: How can you produce a list of all members who have used a tennis court?
